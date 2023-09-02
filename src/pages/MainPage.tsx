@@ -1,33 +1,45 @@
-import { Center, Container, Grid, Loader, TextInput, Text, Kbd } from '@mantine/core'
-import { IconSearch } from '@tabler/icons-react'
+import { ActionIcon, Center, Container, Grid, Loader, Stack, TextInput, Text, Kbd } from '@mantine/core'
+import { IconSearch, IconMusic } from '@tabler/icons-react'
 import TrackItem from './TrackItem'
 import { useGetTracksQuery } from '../store/track/track.api'
-import { KeyboardEvent, useState } from 'react'
+import { KeyboardEvent, useMemo, useState } from 'react'
+import { MUSIC_GENRES } from '../constants/music-genres'
+
+function getPseudoRandomMusicGenre(): string {
+  const index = Math.floor(Math.random() * MUSIC_GENRES.length)
+  return MUSIC_GENRES[index]
+}
 
 const MainPage = () => {
-  const [input, setInput] = useState('eminem')
+  const initialSearch = useMemo(getPseudoRandomMusicGenre, [])
 
-  const [search, setSearch] = useState('eminem')
+  const [search, setSearch] = useState(initialSearch)
+
+  const [input, setInput] = useState('')
 
   const { data: apiResponse, isFetching } = useGetTracksQuery({ search, index: 0 })
 
   const tracks = apiResponse?.data
 
   function updateSearch(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key == 'Enter') {
-      setSearch(input);
+    const val = input.trim()
+    if (event.key == 'Enter' && val) {
+      setSearch(val)
     }
   }
 
   return (
     <Container pb={200}>
       <TextInput
-        icon={<IconSearch />}
+        radius={100}
+        icon={<IconMusic />}
         placeholder="Search tracks"
         size="xl"
-        rightSection={isFetching ? <Loader /> : null}
         onChange={event => setInput(event.currentTarget.value)}
-        onKeyDown={updateSearch} />
+        onKeyDown={updateSearch}
+        rightSection={<ActionIcon color="red" variant="filled" size="xl" radius={100}>
+          {isFetching ? <Loader color="white" /> : <IconSearch />}
+        </ActionIcon>} />
       <Text
         color="dimmed"
         mt={10}
@@ -35,8 +47,14 @@ const MainPage = () => {
         size="xs">
         Press <Kbd>Enter</Kbd> to launch search
       </Text>
-      {tracks !== null && !tracks?.length && <Center>
+      {!isFetching && tracks !== null && !tracks?.length && <Center>
         <Text>No tracks found</Text>
+      </Center>}
+      {isFetching && tracks == null && <Center>
+        <Stack align="center">
+          <Loader size="xl" />
+          <Text>Loading {initialSearch} tracks</Text>
+        </Stack>
       </Center>}
       <Grid>
         {tracks !== null && tracks?.map(track => (
