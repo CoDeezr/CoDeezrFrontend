@@ -3,13 +3,12 @@ import { Artist } from '../../model/artist'
 import { APIResponse } from '../../model/api-response'
 import { Track } from '../../model/track'
 import { Album } from '../../model/album'
-
-const baseUrl = 'http://127.0.0.1:3000'
+import { API_BASE_URL } from '../../constants/urls'
 
 const artistApi = createApi({
   reducerPath: 'artistApi',
   tagTypes: ['artist', 'toptracks'],
-  baseQuery: fetchBaseQuery({ baseUrl }),
+  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
   endpoints: (builder) => ({
     getArtist: builder.query<Artist, number>({
       query: (id) => `/artist/${id}`,
