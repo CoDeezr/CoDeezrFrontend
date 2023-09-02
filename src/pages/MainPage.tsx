@@ -1,6 +1,6 @@
 import { ActionIcon, Center, Container, Grid, Group, Loader, Pagination, Stack, TextInput, Text, Kbd } from '@mantine/core'
 import { IconSearch, IconMusic } from '@tabler/icons-react'
-import TrackItem from './TrackItem'
+import TrackItem from '../components/TrackItem'
 import { useGetTracksQuery } from '../store/track/track.api'
 import { useMemo, useState } from 'react'
 import { MUSIC_GENRES } from '../constants/music-genres'
@@ -80,7 +80,7 @@ const MainPage = () => {
         ))}
       </Grid>
       {/* second condition to avoid displaying '0' as textual content */}
-      {total !== undefined && total > 0 && <Group mt={50} position="right">
+      {!isFetching && total !== undefined && total > 0 && <Group mt={50} position="right">
         <Pagination
           value={page}
           total={Math.ceil(total / 25)}
