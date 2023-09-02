@@ -10,7 +10,7 @@ const trackApi = createApi({
     getTracks: builder.query<APIResponse<Track[]>, { search: string, index: number }>({
       query: ({ search, index }) => `/search?q=${search}&index=${index}`,
       providesTags: ['tracks'],
-    })
+    }),
   })
 })
 
