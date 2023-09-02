@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { IconLink } from '@tabler/icons-react'
 import { Track } from '../model/track'
 import { useDisclosure } from '@mantine/hooks'
+import { formatDuration } from '../lib/time.lib'
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -50,12 +51,6 @@ const useStyles = createStyles((theme) => ({
     textOverflow: 'ellipsis',
   },
 }))
-
-function formatDuration(duration: number) {
-  const minutes = Math.floor(duration / 60).toString().padStart(2, '0');
-  const seconds = (duration % 60).toString().padStart(2, '0');
-  return `${minutes}:${seconds}`;
-}
 
 const TrackItem = ({ track }: { track: Track }) => {
   const { classes } = useStyles()
