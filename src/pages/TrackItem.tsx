@@ -51,6 +51,12 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
+function formatDuration(duration: number) {
+  const minutes = Math.floor(duration / 60).toString().padStart(2, '0');
+  const seconds = (duration % 60).toString().padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
 const TrackItem = ({ track }: { track: Track }) => {
   const { classes } = useStyles()
 
@@ -76,7 +82,7 @@ const TrackItem = ({ track }: { track: Track }) => {
           </Popover.Dropdown>
         </Popover>
         <Text color="dimmed" size="sm">Duration</Text>
-        <Badge variant="outline">02:40</Badge>
+        <Badge variant="outline">{formatDuration(track.duration)}</Badge>
       </Stack>
 
       <Card.Section className={classes.section}>
