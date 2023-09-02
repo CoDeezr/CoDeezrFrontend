@@ -2,9 +2,12 @@ import { ActionIcon, Center, Container, Grid, Group, Loader, Pagination, Stack, 
 import { IconSearch, IconMusic } from '@tabler/icons-react'
 import TrackItem from '../components/TrackItem'
 import { useGetTracksQuery } from '../store/track/track.api'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { MUSIC_GENRES } from '../constants/music-genres'
 import { Form, useForm } from '@mantine/form'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../store'
+import { setSearch } from '../store/search/search.slice'
 
 function getPseudoRandomMusicGenre(): string {
   const index = Math.floor(Math.random() * MUSIC_GENRES.length)
@@ -23,9 +26,11 @@ const MainPage = () => {
     }
   })
 
-  const [search, setSearch] = useState(initialSearch)
+  const dispatch = useDispatch()
 
-  const [page, setPage] = useState(1);
+  const search = useSelector((state: RootState) => state.search.term)
+
+  const page = useSelector((state: RootState) => state.search.page)
 
   const { data: apiResponse, isFetching } = useGetTracksQuery({ search, index: (page - 1) * 25 })
 
@@ -35,10 +40,7 @@ const MainPage = () => {
 
   function updateSearch({ search }: typeof form.values) {
     const val = search.trim()
-    if (val) {
-      setPage(0)
-      setSearch(val)
-    }
+    if (val) dispatch(setSearch({ term: val, page: 1 }))
   }
 
   return (
@@ -84,7 +86,7 @@ const MainPage = () => {
         <Pagination
           value={page}
           total={Math.ceil(total / 25)}
-          onChange={setPage} />
+          onChange={val => dispatch(setSearch({ term: search, page: val }))} />
       </Group>}
     </Container>
   )
