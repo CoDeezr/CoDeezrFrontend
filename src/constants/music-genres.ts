@@ -5,7 +5,6 @@ export const MUSIC_GENRES = [
   'RnB',
   'Rock',
   'Metal',
-  'Punk',
   'African',
   'American',
   'Eastern Europe',

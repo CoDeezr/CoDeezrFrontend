@@ -1,9 +1,10 @@
-import { ActionIcon, Center, Container, Grid, Loader, Stack, TextInput, Text, Kbd } from '@mantine/core'
+import { ActionIcon, Center, Container, Grid, Group, Loader, Pagination, Stack, TextInput, Text, Kbd } from '@mantine/core'
 import { IconSearch, IconMusic } from '@tabler/icons-react'
 import TrackItem from './TrackItem'
 import { useGetTracksQuery } from '../store/track/track.api'
-import { KeyboardEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { MUSIC_GENRES } from '../constants/music-genres'
+import { Form, useForm } from '@mantine/form'
 
 function getPseudoRandomMusicGenre(): string {
   const index = Math.floor(Math.random() * MUSIC_GENRES.length)
@@ -13,33 +14,48 @@ function getPseudoRandomMusicGenre(): string {
 const MainPage = () => {
   const initialSearch = useMemo(getPseudoRandomMusicGenre, [])
 
+  const form = useForm({
+    initialValues: {
+      search: '',
+    },
+    validate: {
+      search: val => val.trim() ? null : 'Search term required',
+    }
+  })
+
   const [search, setSearch] = useState(initialSearch)
 
-  const [input, setInput] = useState('')
+  const [page, setPage] = useState(1);
 
-  const { data: apiResponse, isFetching } = useGetTracksQuery({ search, index: 0 })
+  const { data: apiResponse, isFetching } = useGetTracksQuery({ search, index: (page - 1) * 25 })
 
   const tracks = apiResponse?.data
 
-  function updateSearch(event: KeyboardEvent<HTMLInputElement>) {
-    const val = input.trim()
-    if (event.key == 'Enter' && val) {
+  const total = apiResponse?.total
+
+  function updateSearch({ search }: typeof form.values) {
+    const val = search.trim()
+    if (val) {
+      setPage(0)
       setSearch(val)
     }
   }
 
   return (
     <Container pb={200}>
-      <TextInput
-        radius={100}
-        icon={<IconMusic />}
-        placeholder="Search tracks"
-        size="xl"
-        onChange={event => setInput(event.currentTarget.value)}
-        onKeyDown={updateSearch}
-        rightSection={<ActionIcon color="red" variant="filled" size="xl" radius={100}>
-          {isFetching ? <Loader color="white" /> : <IconSearch />}
-        </ActionIcon>} />
+      <Form form={form} onSubmit={updateSearch} noValidate>
+        <TextInput
+          radius={100}
+          icon={<IconMusic />}
+          placeholder="Search tracks"
+          size="xl"
+          value={form.values.search}
+          onChange={event => form.setFieldValue('search', event.currentTarget.value)}
+          rightSection={<ActionIcon type="submit" color="red" variant="filled" size="xl" radius={100}>
+            {isFetching ? <Loader color="white" /> : <IconSearch />}
+          </ActionIcon>}
+          error={form.errors.search} />
+      </Form>
       <Text
         color="dimmed"
         mt={10}
@@ -50,19 +66,26 @@ const MainPage = () => {
       {!isFetching && tracks !== null && !tracks?.length && <Center>
         <Text>No tracks found</Text>
       </Center>}
-      {isFetching && tracks == null && <Center>
+      {isFetching && <Center>
         <Stack align="center">
           <Loader size="xl" />
-          <Text>Loading {initialSearch} tracks</Text>
+          <Text>Loading {form.values.search || initialSearch} tracks</Text>
         </Stack>
       </Center>}
       <Grid>
-        {tracks !== null && tracks?.map(track => (
+        {!isFetching && tracks !== undefined && tracks.map(track => (
           <Grid.Col key={track.id} xs={12} sm={6} md={4} lg={3}>
             <TrackItem track={track} />
           </Grid.Col>
         ))}
       </Grid>
+      {/* second condition to avoid displaying '0' as textual content */}
+      {total !== undefined && total > 0 && <Group mt={50} position="right">
+        <Pagination
+          value={page}
+          total={Math.ceil(total / 25)}
+          onChange={setPage} />
+      </Group>}
     </Container>
   )
 }

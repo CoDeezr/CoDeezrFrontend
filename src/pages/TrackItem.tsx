@@ -91,7 +91,7 @@ const TrackItem = ({ track }: { track: Track }) => {
             <Text fz="sm" c="dimmed" fw={500} sx={{ lineHeight: 1 }} mb={3}>
               Artist
             </Text>
-            <Link to={`/artist/13`} className={classes.artistLink}>
+            <Link to={`/artist/${track.artist.id}`} className={classes.artistLink}>
               <Group spacing={5}>
                 <Text fz="xl" fw={700} sx={{ lineHeight: 1 }}>
                   {track.artist.name}
